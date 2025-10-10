@@ -451,3 +451,13 @@ function showError(msg) {
   if (err) err.textContent = msg;
 }
 
+const PRECONFIG_ACCOUNTS = [
+  { username: "admin", password: "admin123" },
+  { username: "user1", password: "contraseña1" },
+  { username: "invitado", password: "demo" }
+];
+
+// en la carga:
+(async () => {
+  await initAccountsAndData(PRECONFIG_ACCOUNTS);
+})();
