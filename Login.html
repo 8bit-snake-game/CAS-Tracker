@@ -117,7 +117,8 @@
     const ok = await checkCredentials(u, p);
     if (!ok) { errDiv.textContent = "Usuario o contraseña incorrectos."; return; }
     setSession(u);
-    renderUI();
+    // redirigir al CAS Tracker principal
+    window.location.href = "index.html";
   }
 
   function renderUI() {
