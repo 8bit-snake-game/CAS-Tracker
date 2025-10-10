@@ -7,7 +7,14 @@
   <link rel="stylesheet" href="style.css">
   <script defer src="script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docx@7.2.0/build/index.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js">
+    const SESSION_KEY = "fake_session_v1";
+  const session = localStorage.getItem(SESSION_KEY);
+  if (!session) {
+    // si no hay sesión guardada, redirige al login
+    window.location.href = "Login.html";
+  }
+  </script>
 </head>
 <body>
   <header>
