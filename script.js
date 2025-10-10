@@ -371,4 +371,83 @@ document.getElementById("exportWord").addEventListener("click", async () => {
   const blob = await Packer.toBlob(doc);
   saveAs(blob, "Reflexiones.docx");
 });
+///////////
+// --- Constantes (añade estas si no las tienes) ---
+const ACCOUNTS_KEY = "fake_server_accounts_v1";
+const SESSION_KEY  = "fake_session_v1";
+const USER_DATA_KEY = "fake_user_data_v1"; // nuevo: contenido por usuario
+
+// --- helper de hash (si ya está, no lo repitas) ---
+async function sha256Hex(str) {
+  const enc = new TextEncoder();
+  const data = enc.encode(str);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// --- inicializar cuentas (usa tu PRECONFIG_ACCOUNTS si ya existe) ---
+async function initAccountsAndData(preconfigAccounts) {
+  // inicializa cuentas si no existen
+  if (!localStorage.getItem(ACCOUNTS_KEY)) {
+    const map = {};
+    for (const acc of preconfigAccounts) {
+      const hash = await sha256Hex(acc.username + ":" + acc.password);
+      map[acc.username] = { pwdHash: hash };
+    }
+    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(map));
+  }
+
+  // inicializa datos por usuario si no existen
+  if (!localStorage.getItem(USER_DATA_KEY)) {
+    // crea datos por defecto para cada usuario preconfigurado
+    const users = {};
+    for (const acc of preconfigAccounts) {
+      users[acc.username] = {
+        displayName: acc.username,
+        welcome: `Bienvenido/a ${acc.username}!`,
+        notes: [
+          { id: 1, text: `Nota inicial para ${acc.username}` }
+        ],
+        // añade lo que necesites (perfil, avatar, settings, etc.)
+      };
+    }
+    localStorage.setItem(USER_DATA_KEY, JSON.stringify(users));
+  }
+}
+
+// --- sesión ---
+function setSession(username) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ username, when: Date.now() }));
+}
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function getSession() { const s = localStorage.getItem(SESSION_KEY); return s ? JSON.parse(s) : null; }
+
+// --- check credenciales (si ya la tienes, deja la tuya) ---
+async function checkCredentials(username, password) {
+  const raw = localStorage.getItem(ACCOUNTS_KEY);
+  if (!raw) return false;
+  const accounts = JSON.parse(raw);
+  if (!accounts[username]) return false;
+  const hash = await sha256Hex(username + ":" + password);
+  return hash === accounts[username].pwdHash;
+}
+
+// --- login handler: al autenticar, redirige a inicio.html ---
+async function tryLoginAndRedirect() {
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!u || !p) { showError("Completa usuario y contraseña."); return; }
+  const ok = await checkCredentials(u, p);
+  if (!ok) { showError("Usuario o contraseña incorrectos."); return; }
+  setSession(u);
+  // redirige a la página de inicio (ajusta la ruta si tu archivo se llama distinto)
+  window.location.href = "inicio.html";
+}
+
+// ejemplo simple de showError
+function showError(msg) {
+  const err = document.getElementById("err");
+  if (err) err.textContent = msg;
+}
 
