@@ -5,7 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CAS Tracker - Panel Principal</title>
   <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
+  <script defer src="script.js">
+    const SESSION_KEY = "fake_session_v1";
+  const session = localStorage.getItem(SESSION_KEY);
+  if (!session) {
+    // si no hay sesión guardada, redirige al login
+    window.location.href = "Login.html";
+  }
+  </script>
 </head>
 <body>
   <header>
