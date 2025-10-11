@@ -6,6 +6,22 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarHorario();
   iniciarContadorReflexion();
 
+  fetch('cuentas.csv')
+  .then(response => {
+    if (!response.ok) throw new Error('Error al cargar cuentas.csv');
+    return response.text(); // obtenemos el contenido del archivo
+  })
+  .then(data => {
+    console.log('Contenido del CSV:', data);
+    const lineas = data.trim().split('\n');
+    const cuentas = lineas.slice(1).map(linea => {
+      const [usuario, contraseña, rol] = linea.split(',');
+      return { usuario, contraseña, rol };
+    });
+    console.log('Cuentas procesadas:', cuentas);
+  })
+  .catch(err => console.error(err));
+  
   const formAct = document.getElementById("formActividad");
   if (formAct) formAct.addEventListener("submit", guardarActividad);
 
